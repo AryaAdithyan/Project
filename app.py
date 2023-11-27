@@ -24,13 +24,13 @@ def main():
     if st.sidebar.button("Generate Forecast"):
         # Determine the dataset based on the selected frequency
         if forecasting_frequency == "Hourly":
-            dataset_name = "/kaggle/input/pharma-sales-data/saleshourly.csv"
+            dataset_name = "saleshourly.csv"
         elif forecasting_frequency == "Daily":
-            dataset_name = "/kaggle/input/pharma-sales-data/salesdaily.csv"
+            dataset_name = "salesdaily.csv"
         elif forecasting_frequency == "Weekly":
-            dataset_name = "/kaggle/input/pharma-sales-data/salesweekly.csv"
+            dataset_name = "salesweekly.csv"
         elif  forecasting_frequency == "Monthly":
-            dataset_name = "/kaggle/input/pharma-sales-data/salesmonthly.csv"
+            dataset_name = "salesmonthly.csv"
         else:
             st.error("Invalid forecasting frequency selected")
             return
