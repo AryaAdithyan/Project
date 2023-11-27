@@ -4,7 +4,7 @@ import numpy as np
 import pickle
 
 # Load the saved components:
-with open("rf_model.pkl", "rb") as f:
+with open("our.model", "rb") as f:
     components = pickle.load(f)
 
 # Extract the individual components
