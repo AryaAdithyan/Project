@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-from statsmodels.tsa.arima.model import ARIMA
 from pmdarima import auto_arima
 from datetime import datetime, timedelta
 
