@@ -1,0 +1,45 @@
+df=pd.read_csv('https://www.kaggle.com/datasets/milanzdravkovic/pharma-sales-data/data?select=salesweekly.csv')
+
+M01AB= {'series':'M01AB','p':0,'d':0,'q':0}
+M01AE= {'series':'M01AE','p':2,'d':0,'q':0}
+N02BA= {'series':'N02BA','p':5,'d':1,'q':1}
+N02BE= {'series':'N02BE','p':2,'d':0,'q':0}
+N05B= {'series':'N05B','p':0,'d':0,'q':5}
+N05C= {'series':'N05C','p':0,'d':0,'q':1}
+R03= {'series':'R03','p':5,'d':1,'q':1}
+R06= {'series':'R06','p':1,'d':0,'q':1}
+
+subplotindex=0
+numrows=4
+numcols=2
+fig, ax = plt.subplots(numrows, numcols, figsize=(18,15))
+plt.subplots_adjust(wspace=0.1, hspace=0.3)
+
+warnings.filterwarnings("ignore")
+
+for x in [M01AB,M01AE,N02BA,N02BE,N05B,N05C,R03,R06]:
+    rowindex=math.floor(subplotindex/numcols)
+    colindex=subplotindex-(rowindex*numcols)
+    X = df[x['series']].values
+    size = len(X)-50
+    train, test = X[0:size], X[size:len(X)]
+    history = [x for x in train]
+    predictions = list()
+    for t in range(len(test)):
+        model = ARIMA(history, order=(x['p'],x['d'],x['q']))
+        model_fit = model.fit(disp=0)
+        output = model_fit.forecast()
+        yhat = output[0]
+        predictions.append(yhat)
+        obs = test[t]
+        history.append(obs)
+    error = mean_squared_error(test, predictions)
+    perror = mean_absolute_percentage_error(test, predictions)
+    resultsRollingdf.loc['ARIMA MSE',x['series']]=error
+    resultsRollingdf.loc['ARIMA MAPE',x['series']]=perror
+    ax[rowindex,colindex].set_title(x['series']+' (MSE=' + str(round(error,2))+', MAPE='+ str(round(perror,2)) +'%)')
+    ax[rowindex,colindex].legend(['Real', 'Predicted'], loc='upper left')
+    ax[rowindex,colindex].plot(test)
+    ax[rowindex,colindex].plot(predictions, color='red')
+    subplotindex=subplotindex+1
+plt.show()
