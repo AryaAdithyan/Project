@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from pmdarima import auto_arima
+from statsmodels.tsa.arima.model import ARIMA
 from datetime import datetime, timedelta
 
 # Function to load and preprocess data
