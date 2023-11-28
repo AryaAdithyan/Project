@@ -11,7 +11,7 @@ def load_and_preprocess_data(file_path):
     df.set_index('datum', inplace=True)
     df.sort_index(inplace=True)
     return df
-st.image("https://images.app.goo.gl/pg5D3cS3aHtKVv7PA")
+    st.image("https://images.app.goo.gl/pg5D3cS3aHtKVv7PA")
 
     # Add a title with some style
     st.title("🌟 Pharma Sales Forecasting App 🌟")
