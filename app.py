@@ -15,7 +15,7 @@ def load_and_preprocess_data(file_path):
 # Streamlit app
 def main():
     # Add a title with some style
-    st.image("https://indoreinstitute.com/wp-content/uploads/2019/12/An-Insight-into-the-Different-Types-of-Pharmaceutical-Formulations.jpg", width=800)  # Adjust width as needed
+    st.image("https://unmetric.com/resources/wp-content/uploads/2018/09/medicine.png", width=800)  # Adjust width as needed
     st.title("💊Pharma Sales Forecasting App💊")
     st.subheader("Make data-driven decisions for your pharmaceutical products!")
 
@@ -42,6 +42,10 @@ def main():
     if start_date >= end_date:
         st.error("End date must be after start date.")
         return
+
+    # Convert start_date and end_date to Timestamp objects
+    start_date = pd.Timestamp(start_date)
+    end_date = pd.Timestamp(end_date)
 
     # Style the button
     generate_button = st.sidebar.button("Generate Forecast", key="generate_button")
