@@ -67,7 +67,7 @@ def main():
     df = load_and_preprocess_data(file_path)
 
     # Filter data based on selected date range
-    df_filtered = df[(df.index >= start_date) & (df.index <= end_date)]
+    df_filtered = df.loc[(df.index >= start_date) & (df.index <= end_date)]
 
     # Train Auto-ARIMA model for short-term forecasting
     model_autoarima = auto_arima(df_filtered[product_name], seasonal=True, m=12)  # Adjust seasonality as needed
