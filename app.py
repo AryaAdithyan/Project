@@ -70,7 +70,7 @@ def main():
     df_filtered = df.loc[(df.index >= start_date) & (df.index <= end_date)]
 
     # Train Auto-ARIMA model for short-term forecasting
-    model_autoarima = auto_arima(df[product_name], seasonal=True, m=12)  # Adjust seasonality as needed
+    model_autoarima = auto_arima(df[product_name], seasonal=True, m=12, max_p=3, max_d=2, max_q=3, max_P=2, max_D=1, max_Q=2)
     model_autoarima.fit(df[product_name])
 
     # Generate future date range based on user input
