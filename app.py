@@ -8,7 +8,7 @@ from tensorflow.keras.layers import LSTM, Dense
 import numpy as np
 
 # Function to load and preprocess data
-@st.cache_data(allow_output_mutation=True)
+@st.cache_resource(allow_output_mutation=True)
 def load_and_preprocess_data(file_path):
     df = pd.read_csv(file_path)
     df['datum'] = pd.to_datetime(df['datum'])
