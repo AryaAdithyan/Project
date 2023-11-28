@@ -1,7 +1,2 @@
-tensorflow
 statsmodels
 pmdarima
-streamlit
-scikit-learn
-numpy
-pandas
