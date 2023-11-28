@@ -12,12 +12,29 @@ def load_and_preprocess_data(file_path):
     df.sort_index(inplace=True)
     return df
 
+# Function to set background image
+def set_background():
+    page_bg = '''
+    <style>
+    body {
+    background-image: url("https://images.app.goo.gl/6Z83XPPvPYCCygQn8");
+    background-size: cover;
+    }
+    </style>
+    '''
+    st.markdown(page_bg, unsafe_allow_html=True)
+
 # Streamlit app
 def main():
-    st.title("Pharma Sales Forecasting App")
+    # Set background image
+    set_background()
+
+    # Add a title with some style
+    st.title("🌟 Pharma Sales Forecasting App 🌟")
+    st.subheader("Make data-driven decisions for your pharmaceutical products!")
 
     # Sidebar for user inputs
-    forecasting_frequency = st.sidebar.radio("Select Forecasting Frequency", ["Hourly", "Daily", "Weekly","Monthly"])
+    forecasting_frequency = st.sidebar.radio("Select Forecasting Frequency", ["Hourly", "Daily", "Weekly", "Monthly"])
     product_name = st.sidebar.selectbox("Select Product", ["M01AB", "M01AE", "N02BA", "N02BE", "N05B", "N05C", "R03", "R06"])
     num_intervals = st.sidebar.number_input("Enter Number of Intervals for Forecasting", min_value=1, max_value=30, value=7)
 
@@ -29,7 +46,7 @@ def main():
             dataset_name = "salesdaily.csv"
         elif forecasting_frequency == "Weekly":
             dataset_name = "salesweekly.csv"
-        elif  forecasting_frequency == "Monthly":
+        elif forecasting_frequency == "Monthly":
             dataset_name = "salesmonthly.csv"
         else:
             st.error("Invalid forecasting frequency selected")
