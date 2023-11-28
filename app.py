@@ -15,7 +15,7 @@ def load_and_preprocess_data(file_path):
 # Streamlit app
 def main():
     # Add a title with some style
-    st.image("https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8bWVkaWNpbmV8ZW58MHx8MHx8fDA%3D")
+    st.image("https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8bWVkaWNpbmV8ZW58MHx8MHx8fDA%3D",width=800)
     st.title("🌟 Pharma Sales Forecasting App 🌟")
     st.subheader("Make data-driven decisions for your pharmaceutical products!")
 
