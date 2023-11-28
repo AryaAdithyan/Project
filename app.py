@@ -12,6 +12,8 @@ def load_and_preprocess_data(file_path):
     df.sort_index(inplace=True)
     return df
 
+# Streamlit app
+def main():
     # Add a title with some style
     st.image("https://pbs.twimg.com/media/DywhyJiXgAIUZej?format=jpg&name=medium")
     st.title("🌟 Pharma Sales Forecasting App 🌟")
@@ -68,5 +70,6 @@ def load_and_preprocess_data(file_path):
 
 if __name__ == "__main__":
     main()
+
 
 
