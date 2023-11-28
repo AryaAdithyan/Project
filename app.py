@@ -1,8 +1,11 @@
 import streamlit as st
 import pandas as pd
-from statsmodels.tsa.arima.model import ARIMA
 from pmdarima import auto_arima
 from datetime import datetime, timedelta
+from sklearn.preprocessing import MinMaxScaler
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import LSTM, Dense
+import numpy as np
 
 # Function to load and preprocess data
 def load_and_preprocess_data(file_path):
@@ -11,6 +14,27 @@ def load_and_preprocess_data(file_path):
     df.set_index('datum', inplace=True)
     df.sort_index(inplace=True)
     return df
+
+# Function to train LSTM model
+def train_lstm_model(data, n_steps=7):
+    scaler = MinMaxScaler(feature_range=(0, 1))
+    scaled_data = scaler.fit_transform(data)
+
+    x_train, y_train = [], []
+    for i in range(len(data) - n_steps):
+        x_train.append(scaled_data[i : i + n_steps, 0])
+        y_train.append(scaled_data[i + n_steps, 0])
+
+    x_train, y_train = np.array(x_train), np.array(y_train)
+    x_train = np.reshape(x_train, (x_train.shape[0], x_train.shape[1], 1))
+
+    model = Sequential()
+    model.add(LSTM(units=50, activation='relu', input_shape=(n_steps, 1)))
+    model.add(Dense(units=1))
+    model.compile(optimizer='adam', loss='mse')
+    model.fit(x_train, y_train, epochs=50, batch_size=8)
+
+    return model, scaler
 
 # Streamlit app
 def main():
@@ -70,7 +94,7 @@ def main():
     df_filtered = df.loc[(df.index >= start_date) & (df.index <= end_date)]
 
     # Train Auto-ARIMA model for short-term forecasting
-    model_autoarima = auto_arima(df[product_name], seasonal=True, m=12, max_p=3, max_d=2, max_q=3, max_P=2, max_D=1, max_Q=2)
+    model_autoarima = auto_arima(df[product_name], seasonal=True, m=12)  # Adjust seasonality as needed
     model_autoarima.fit(df[product_name])
 
     # Generate future date range based on user input
@@ -82,18 +106,48 @@ def main():
         freq = "W"
     elif forecasting_frequency == "Monthly":
         freq = "M"
-    future_dates = pd.date_range(df.index[-1] + timedelta(hours=1), periods=num_intervals, freq=freq)
+    future_dates_arima = pd.date_range(df.index[-1] + timedelta(hours=1), periods=num_intervals, freq=freq)
 
     # Predict sales for the future date range using Auto-ARIMA
-    predictions = model_autoarima.predict(n_periods=num_intervals, return_conf_int=False)
+    predictions_arima = model_autoarima.predict(n_periods=num_intervals, return_conf_int=False)
 
-    # Create a DataFrame for visualization
-    forecast_df = pd.DataFrame({"Date": future_dates, "Predicted Sales": predictions})
-    forecast_df.set_index("Date", inplace=True)
+    # Create a DataFrame for visualization (ARIMA)
+    forecast_df_arima = pd.DataFrame({"Date": future_dates_arima, "Predicted Sales (ARIMA)": predictions_arima})
+    forecast_df_arima.set_index("Date", inplace=True)
 
-    # Display the forecast
-    st.subheader(f"Sales Forecast for {product_name} - {forecasting_frequency} Forecasting")
-    st.line_chart(forecast_df)
+    # Display the forecast (ARIMA)
+    st.subheader(f"ARIMA Sales Forecast for {product_name} - {forecasting_frequency} Forecasting")
+    st.line_chart(forecast_df_arima)
+
+    # Train LSTM model for long-term forecasting
+    data_lstm = df[product_name].values.reshape(-1, 1)  # LSTM requires 2D input
+    model_lstm, scaler_lstm = train_lstm_model(data_lstm, n_steps=7)
+
+    # Generate future date range for LSTM
+    future_dates_lstm = pd.date_range(df.index[-1] + timedelta(days=1), periods=num_intervals, freq=freq)
+
+    # Predict sales for the future date range using LSTM
+    x_input = data_lstm[-7:].reshape((1, 7, 1))
+    x_input_scaled = scaler_lstm.transform(x_input)
+    lstm_prediction_scaled = model_lstm.predict(x_input_scaled, batch_size=1)
+    lstm_prediction = scaler_lstm.inverse_transform(lstm_prediction_scaled)
+
+    # Create a DataFrame for visualization (LSTM)
+    forecast_df_lstm = pd.DataFrame({"Date": future_dates_lstm, "Predicted Sales (LSTM)": lstm_prediction.flatten()})
+    forecast_df_lstm.set_index("Date", inplace=True)
+
+    # Display the forecast (LSTM)
+    st.subheader(f"LSTM Sales Forecast for {product_name} - {forecasting_frequency} Forecasting")
+    st.line_chart(forecast_df_lstm)
+
+    # Display the predicted values DataFrame (ARIMA)
+    st.subheader("ARIMA Predicted Values:")
+    st.write(forecast_df_arima)
+
+    # Display the predicted values DataFrame (LSTM)
+    st.subheader("LSTM Predicted Values:")
+    st.write(forecast_df_lstm)
 
 if __name__ == "__main__":
     main()
+
