@@ -17,7 +17,7 @@ def set_background():
     page_bg = '''
     <style>
     body {
-    background-image: url("https://images.app.goo.gl/6Z83XPPvPYCCygQn8");
+    background-image: url("https://unsplash.com/photos/white-blue-and-orange-medication-pill-KltoLK6Mk-g");
     background-size: cover;
     }
     </style>
