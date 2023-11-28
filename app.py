@@ -8,7 +8,7 @@ from tensorflow.keras.layers import LSTM, Dense
 import numpy as np
 
 # Function to load and preprocess data
-@st.cache_data(allow_output_mutation=True)
+@st.cache(allow_output_mutation=True)
 def load_and_preprocess_data(file_path):
     df = pd.read_csv(file_path)
     df['datum'] = pd.to_datetime(df['datum'])
@@ -17,7 +17,7 @@ def load_and_preprocess_data(file_path):
     return df
 
 # Function to train LSTM model
-@st.cache_data(allow_output_mutation=True)
+@st.cache(allow_output_mutation=True)
 def train_lstm_model(data, n_steps=7):
     scaler = MinMaxScaler(feature_range=(0, 1))
     scaled_data = scaler.fit_transform(data)
