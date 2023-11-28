@@ -17,7 +17,7 @@ def set_background():
     page_bg = """
         <style>
         body {
-            background-image: url("https://images.app.goo.gl/pg5D3cS3aHtKVv7PA");
+            background-image: url("");
             background-size: cover;
         }
         </style>
