@@ -1,7 +1,7 @@
+tensorflow
 statsmodels
 pmdarima
 streamlit
 scikit-learn
-tensorflow
 numpy
 pandas
