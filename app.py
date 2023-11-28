@@ -70,24 +70,30 @@ def main():
     df_filtered = df.loc[(df.index >= start_date) & (df.index <= end_date)]
 
     # Train Auto-ARIMA model for short-term forecasting
-    model_autoarima = auto_arima(df_filtered[product_name].values, seasonal=True, m=12)  # Adjust seasonality as needed
-    model_autoarima.fit(df_filtered[product_name])
+     model_autoarima = auto_arima(df[product_name], seasonal=True, m=12)  # Adjust seasonality as needed
+     model_autoarima.fit(df[product_name])
 
-    # Generate future date range based on user input
-    freq_mapping = {"Hourly": "H", "Daily": "D", "Weekly": "W", "Monthly": "M"}
-    freq = freq_mapping.get(forecasting_frequency, "D")  # Default to Daily if not found
-    future_dates = pd.date_range(df_filtered.index[-1] + timedelta(hours=1), periods=num_intervals, freq=freq)
+        # Generate future date range based on user input
+        if forecasting_frequency == "Hourly":
+            freq = "H"
+        elif forecasting_frequency == "Daily":
+            freq = "D"
+        elif forecasting_frequency == "Weekly":
+            freq = "W"
+        elif forecasting_frequency == "Monthly":
+            freq = "M"
+        future_dates = pd.date_range(df.index[-1] + timedelta(hours=1), periods=num_intervals, freq=freq)
 
-    # Predict sales for the future date range using Auto-ARIMA
-    predictions = model_autoarima.predict(n_periods=num_intervals, return_conf_int=False)
+        # Predict sales for the future date range using Auto-ARIMA
+        predictions = model_autoarima.predict(n_periods=num_intervals, return_conf_int=False)
 
-    # Create a DataFrame for visualization
-    forecast_df = pd.DataFrame({"Date": future_dates, "Predicted Sales": predictions})
-    forecast_df.set_index("Date", inplace=True)
+        # Create a DataFrame for visualization
+        forecast_df = pd.DataFrame({"Date": future_dates, "Predicted Sales": predictions})
+        forecast_df.set_index("Date", inplace=True)
 
-    # Display the forecast
-    st.subheader(f"Sales Forecast for {product_name} - {forecasting_frequency} Forecasting")
-    st.line_chart(forecast_df)
+        # Display the forecast
+        st.subheader(f"Sales Forecast for {product_name} - {forecasting_frequency} Forecasting")
+        st.line_chart(forecast_df)
 
 if __name__ == "__main__":
     main()
