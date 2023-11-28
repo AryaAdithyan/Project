@@ -12,16 +12,16 @@ def load_and_preprocess_data(file_path):
     df.sort_index(inplace=True)
     return df
 
-# Function to set background image
+# Function to set background image using HTML and CSS
 def set_background():
-    page_bg = '''
-    <style>
-    body {
-    background-image: url("https://unsplash.com/photos/white-blue-and-orange-medication-pill-KltoLK6Mk-g");
-    background-size: cover;
-    }
-    </style>
-    '''
+    page_bg = """
+        <style>
+        body {
+            background-image: url("https://images.app.goo.gl/pg5D3cS3aHtKVv7PA");
+            background-size: cover;
+        }
+        </style>
+    """
     st.markdown(page_bg, unsafe_allow_html=True)
 
 # Streamlit app
@@ -84,3 +84,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
