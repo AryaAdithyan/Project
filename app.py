@@ -11,23 +11,7 @@ def load_and_preprocess_data(file_path):
     df.set_index('datum', inplace=True)
     df.sort_index(inplace=True)
     return df
-
-# Function to set background image using HTML and CSS
-def set_background():
-    page_bg = """
-        <style>
-        body {
-            background-image: url("");
-            background-size: cover;
-        }
-        </style>
-    """
-    st.markdown(page_bg, unsafe_allow_html=True)
-
-# Streamlit app
-def main():
-    # Set background image
-    set_background()
+st.image("https://images.app.goo.gl/pg5D3cS3aHtKVv7PA")
 
     # Add a title with some style
     st.title("🌟 Pharma Sales Forecasting App 🌟")
