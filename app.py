@@ -16,7 +16,7 @@ def load_and_preprocess_data(file_path):
 def main():
     # Add a title with some style
     st.image("https://indoreinstitute.com/wp-content/uploads/2019/12/An-Insight-into-the-Different-Types-of-Pharmaceutical-Formulations.jpg", width=800)  # Adjust width as needed
-    st.title("💊 Pharma Sales Forecasting App 💊")
+    st.title("💊Pharma Sales Forecasting App💊")
     st.subheader("Make data-driven decisions for your pharmaceutical products!")
 
     # Set background color and padding
@@ -37,22 +37,18 @@ def main():
     product_name = st.sidebar.selectbox("Select Drug Category", ["M01AB", "M01AE", "N02BA", "N02BE", "N05B", "N05C", "R03", "R06"])
     num_intervals = st.sidebar.slider("Select Number of Intervals for Forecasting", min_value=1, max_value=30, value=7)
 
-    # Get start and end date as strings in "2022/11/29" format
+    # Assuming start_date and end_date are strings in the format "2022/11/29"
     start_date_str = st.sidebar.text_input("Start Date", (datetime.today() - timedelta(days=30)).strftime("%Y/%m/%d"))
     end_date_str = st.sidebar.text_input("End Date", datetime.today().strftime("%Y/%m/%d"))
 
-    # Convert strings to datetime objects
+    # Convert the strings to datetime objects
     start_date = pd.to_datetime(start_date_str, format="%Y/%m/%d")
     end_date = pd.to_datetime(end_date_str, format="%Y/%m/%d")
 
+    # Check if the selected date range is valid
     if start_date >= end_date:
         st.error("End date must be after start date.")
         return
-
-    # Style the button
-    generate_button = st.sidebar.button("Generate Forecast", key="generate_button")
-    if generate_button:
-        st.sidebar.success("Forecast generated successfully!")
 
     # Determine the dataset based on the selected frequency
     if forecasting_frequency == "Hourly":
@@ -73,6 +69,11 @@ def main():
 
     # Filter data based on selected date range
     df_filtered = df[(df.index >= start_date) & (df.index <= end_date)]
+
+    # Check if the filtered DataFrame is empty
+    if df_filtered.empty:
+        st.error("No data available for the selected date range.")
+        return
 
     # Train Auto-ARIMA model for short-term forecasting
     model_autoarima = auto_arima(df_filtered[product_name], seasonal=True, m=12)  # Adjust seasonality as needed
