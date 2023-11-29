@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 from statsmodels.tsa.arima.model import ARIMA
-from pmdarima import auto_arima
 from datetime import datetime, timedelta
 
 # Function to load and preprocess data
@@ -47,6 +46,10 @@ def main():
 
         # Generate forecast for the specific prediction date
         forecast_arima = model_arima_fit.get_forecast(steps=1)
+        
+        # Ensure prediction_date is a Timestamp object
+        prediction_date = pd.Timestamp(prediction_date)
+        
         prediction_value_arima = forecast_arima.predicted_mean.loc[prediction_date]
 
         # Display the forecast and predicted values for ARIMA
