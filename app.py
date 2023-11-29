@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 from statsmodels.tsa.arima.model import ARIMA
+from pmdarima import auto_arima
 from datetime import datetime, timedelta
 
 # Function to load and preprocess data
@@ -13,19 +14,13 @@ def load_and_preprocess_data(file_path):
 
 # Streamlit app
 def main():
-    st.set_page_config(
-        page_title="Pharma Sales Forecasting App",
-        page_icon=":pill:",
-        layout="wide",
-    )
+    st.title("Pharma Sales Forecasting App")
 
     # Sidebar for user inputs
     forecasting_frequency = st.sidebar.radio("Select Forecasting Frequency", ["Hourly", "Daily", "Weekly", "Monthly"])
     product_name = st.sidebar.selectbox("Select Product", ["M01AB", "M01AE", "N02BA", "N02BE", "N05B", "N05C", "R03", "R06"])
-    
-    # Allow the user to enter the date for prediction
-    prediction_date = st.sidebar.date_input("Enter Date for Prediction", datetime.today() + timedelta(days=1))
-    
+    num_intervals = st.sidebar.number_input("Enter Number of Intervals for Forecasting", min_value=1, max_value=50, value=7)
+
     if st.sidebar.button("Generate Forecast"):
         # Determine the dataset based on the selected frequency
         if forecasting_frequency == "Hourly":
@@ -48,26 +43,48 @@ def main():
         model_arima = ARIMA(df[product_name], order=(5, 1, 2))  # Adjust order as needed
         model_arima_fit = model_arima.fit()
 
-        # Generate forecast for the specific prediction date
-        forecast_arima = model_arima_fit.get_forecast(steps=1)
+        # Train Auto-ARIMA model for short-term forecasting
+        model_autoarima = auto_arima(df[product_name], seasonal=True, m=12)  # Adjust seasonality as needed
+        model_autoarima.fit(df[product_name])
 
-        # Extract the predicted value for the specified date
-        prediction_value_arima = forecast_arima.predicted_mean.iloc[0]
+        # Generate future date range based on user input
+        if forecasting_frequency == "Hourly":
+            freq = "H"
+        elif forecasting_frequency == "Daily":
+            freq = "D"
+        elif forecasting_frequency == "Weekly":
+            freq = "W"
+        elif forecasting_frequency == "Monthly":
+            freq = "M"
+        future_dates = pd.date_range(df.index[-1] + timedelta(hours=1), periods=num_intervals, freq=freq)
 
-        # Plot historical sales data
-        st.subheader(f"Historical Sales Data for {product_name}")
-        st.line_chart(df[product_name])
+        # Predict sales for the future date range using ARIMA
+        predictions_arima = model_arima_fit.predict(start=len(df), end=len(df) + num_intervals - 1, typ='levels')
 
-        # Display the forecast and predicted values for ARIMA
-        st.subheader(f"ARIMA Predicted Sales for {product_name} on {prediction_date}:")
-        st.write(prediction_value_arima)
+        # Predict sales for the future date range using Auto-ARIMA
+        predictions_autoarima = model_autoarima.predict(n_periods=num_intervals, return_conf_int=False)
 
-        # Add a background picture
-        background_image = "https://dnd.com.pk/wp-content/uploads/2019/11/pharmaceutical.jpg"  # Replace with your image path
-        st.markdown(
-            f'<style>body{{background-image: url("{background_image}");background-size: cover;}}</style>',
-            unsafe_allow_html=True,
-        )
+        # Create DataFrames for visualization
+        forecast_df_arima = pd.DataFrame({"Date": future_dates, "Predicted Sales (ARIMA)": predictions_arima})
+        forecast_df_autoarima = pd.DataFrame({"Date": future_dates, "Predicted Sales (Auto-ARIMA)": predictions_autoarima})
+
+        # Set index for both DataFrames
+        forecast_df_arima.set_index("Date", inplace=True)
+        forecast_df_autoarima.set_index("Date", inplace=True)
+
+        # Display the forecasts
+        st.subheader(f"ARIMA Sales Forecast for {product_name} - {forecasting_frequency} Forecasting")
+        st.line_chart(forecast_df_arima)
+
+        st.subheader(f"Auto-ARIMA Sales Forecast for {product_name} - {forecasting_frequency} Forecasting")
+        st.line_chart(forecast_df_autoarima)
+
+        # Display the predicted values
+        st.subheader("ARIMA Predicted Values:")
+        st.write(forecast_df_arima)
+
+        st.subheader("Auto-ARIMA Predicted Values:")
+        st.write(forecast_df_autoarima)
 
 if __name__ == "__main__":
     main()
