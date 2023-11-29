@@ -51,7 +51,7 @@ def main():
         prediction_date = pd.to_datetime(prediction_date)
 
         # Extract the predicted value for the specified date
-        prediction_value_arima = forecast_arima.predicted_mean[prediction_date]
+        prediction_value_arima = forecast_arima.predicted_mean.loc[prediction_date]
 
         # Display the forecast and predicted values for ARIMA
         st.subheader(f"ARIMA Predicted Sales for {product_name} on {prediction_date}:")
