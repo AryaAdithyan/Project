@@ -46,7 +46,7 @@ def main():
 
         # Generate forecast for the specific prediction date
         forecast = model_arima_fit.get_forecast(steps=1)
-        prediction_value = forecast.predicted_mean.loc[prediction_date.date()]
+        prediction_value = forecast.predicted_mean.loc[prediction_date]
 
         # Display the predicted value
         st.subheader(f"ARIMA Predicted Sales for {product_name} on {prediction_date}:")
