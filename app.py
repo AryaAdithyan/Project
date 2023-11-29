@@ -13,7 +13,11 @@ def load_and_preprocess_data(file_path):
 
 # Streamlit app
 def main():
-    st.title("Pharma Sales Forecasting App")
+    st.set_page_config(
+        page_title="Pharma Sales Forecasting App",
+        page_icon=":pill:",
+        layout="wide",
+    )
 
     # Sidebar for user inputs
     forecasting_frequency = st.sidebar.radio("Select Forecasting Frequency", ["Hourly", "Daily", "Weekly", "Monthly"])
@@ -50,9 +54,20 @@ def main():
         # Extract the predicted value for the specified date
         prediction_value_arima = forecast_arima.predicted_mean.iloc[0]
 
+        # Plot historical sales data
+        st.subheader(f"Historical Sales Data for {product_name}")
+        st.line_chart(df[product_name])
+
         # Display the forecast and predicted values for ARIMA
         st.subheader(f"ARIMA Predicted Sales for {product_name} on {prediction_date}:")
         st.write(prediction_value_arima)
+
+        # Add a background picture
+        background_image = "https://dnd.com.pk/wp-content/uploads/2019/11/pharmaceutical.jpg"  # Replace with your image path
+        st.markdown(
+            f'<style>body{{background-image: url("{background_image}");background-size: cover;}}</style>',
+            unsafe_allow_html=True,
+        )
 
 if __name__ == "__main__":
     main()
