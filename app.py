@@ -18,7 +18,7 @@ def main():
 
     # Sidebar for user inputs
     forecasting_frequency = st.sidebar.radio("Select Forecasting Frequency", ["Hourly", "Daily", "Weekly", "Monthly"])
-    product_name = st.sidebar.selectbox("Select Product", ["M01AB", "M01AE", "N02BA", "N02BE", "N05B", "N05C", "R03", "R06"])
+    product_name = st.sidebar.selectbox("Select Drug Category", ["M01AB", "M01AE", "N02BA", "N02BE", "N05B", "N05C", "R03", "R06"])
     num_intervals = st.sidebar.number_input("Enter Number of Intervals for Forecasting", min_value=1, max_value=50, value=7)
 
     if st.sidebar.button("Generate Forecast"):
