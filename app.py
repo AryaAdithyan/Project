@@ -45,42 +45,13 @@ def main():
         model_arima = ARIMA(df[product_name], order=(5, 1, 2))  # Adjust order as needed
         model_arima_fit = model_arima.fit()
 
-        # Train Auto-ARIMA model for short-term forecasting
-        model_autoarima = auto_arima(df[product_name], seasonal=True, m=12)  # Adjust seasonality as needed
-        model_autoarima.fit(df[product_name])
-
         # Generate forecast for the specific prediction date
         forecast_arima = model_arima_fit.get_forecast(steps=1)
-        prediction_value_arima = forecast_arima.predicted_mean.loc[pd.Timestamp(prediction_date)]
-
-        # Generate future date range for visualization
-        if forecasting_frequency == "Hourly":
-            freq = "H"
-        elif forecasting_frequency == "Daily":
-            freq = "D"
-        elif forecasting_frequency == "Weekly":
-            freq = "W"
-        elif forecasting_frequency == "Monthly":
-            freq = "M"
-        future_dates = pd.date_range(df.index[-1] + timedelta(hours=1), periods=7, freq=freq)
-
-        # Predict sales for the future date range using Auto-ARIMA
-        predictions_autoarima = model_autoarima.predict(n_periods=7, return_conf_int=False)
-
-        # Create DataFrame for visualization
-        forecast_df_autoarima = pd.DataFrame({"Date": future_dates, "Predicted Sales (Auto-ARIMA)": predictions_autoarima})
-        forecast_df_autoarima.set_index("Date", inplace=True)
+        prediction_value_arima = forecast_arima.predicted_mean.loc[prediction_date]
 
         # Display the forecast and predicted values for ARIMA
         st.subheader(f"ARIMA Predicted Sales for {product_name} on {prediction_date}:")
         st.write(prediction_value_arima)
-
-        # Display the Auto-ARIMA forecast and predicted values
-        st.subheader(f"Auto-ARIMA Sales Forecast for {product_name} - {forecasting_frequency} Forecasting")
-        st.line_chart(forecast_df_autoarima)
-
-        st.subheader("Auto-ARIMA Predicted Values:")
-        st.write(forecast_df_autoarima)
 
 if __name__ == "__main__":
     main()
