@@ -16,7 +16,7 @@ def load_and_preprocess_data(file_path):
 def main():
     # Add a title with some style
     st.image("https://indoreinstitute.com/wp-content/uploads/2019/12/An-Insight-into-the-Different-Types-of-Pharmaceutical-Formulations.jpg", width=800)  # Adjust width as needed
-    st.title("💊Pharma Sales Forecasting App💊")
+    st.title("💊 Pharma Sales Forecasting App 💊")
     st.subheader("Make data-driven decisions for your pharmaceutical products!")
 
     # Set background color and padding
@@ -37,8 +37,13 @@ def main():
     product_name = st.sidebar.selectbox("Select Drug Category", ["M01AB", "M01AE", "N02BA", "N02BE", "N05B", "N05C", "R03", "R06"])
     num_intervals = st.sidebar.slider("Select Number of Intervals for Forecasting", min_value=1, max_value=30, value=7)
 
-    start_date = st.sidebar.date_input("Select Start Date", datetime.today() - timedelta(days=365))
-    end_date = st.sidebar.date_input("Select End Date", datetime.today())
+    # Get start and end date as strings in "2022/11/29" format
+    start_date_str = st.sidebar.text_input("Start Date", (datetime.today() - timedelta(days=30)).strftime("%Y/%m/%d"))
+    end_date_str = st.sidebar.text_input("End Date", datetime.today().strftime("%Y/%m/%d"))
+
+    # Convert strings to datetime objects
+    start_date = pd.to_datetime(start_date_str, format="%Y/%m/%d")
+    end_date = pd.to_datetime(end_date_str, format="%Y/%m/%d")
 
     if start_date >= end_date:
         st.error("End date must be after start date.")
