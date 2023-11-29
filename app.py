@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 from statsmodels.tsa.arima.model import ARIMA
-from pmdarima import auto_arima
 from datetime import datetime, timedelta
 
 # Function to load and preprocess data
@@ -19,6 +18,8 @@ def main():
     # Sidebar for user inputs
     forecasting_frequency = st.sidebar.radio("Select Forecasting Frequency", ["Hourly", "Daily", "Weekly", "Monthly"])
     product_name = st.sidebar.selectbox("Select Product", ["M01AB", "M01AE", "N02BA", "N02BE", "N05B", "N05C", "R03", "R06"])
+
+    # Allow the user to enter the date for prediction
     prediction_date = st.sidebar.date_input("Enter Date for Prediction", datetime.today() + timedelta(days=1))
 
     if st.sidebar.button("Generate Forecast"):
@@ -43,22 +44,13 @@ def main():
         model_arima = ARIMA(df[product_name], order=(5, 1, 2))  # Adjust order as needed
         model_arima_fit = model_arima.fit()
 
-        # Train Auto-ARIMA model for short-term forecasting
-        model_autoarima = auto_arima(df[product_name], seasonal=True, m=12)  # Adjust seasonality as needed
-        model_autoarima.fit(df[product_name])
+        # Generate forecast for the specific prediction date
+        forecast = model_arima_fit.get_forecast(steps=1)
+        prediction_value = forecast.predicted_mean.loc[prediction_date]
 
-        # Predict sales for the specified date using ARIMA
-        prediction_arima = model_arima_fit.get_forecast(steps=1).predicted_mean.loc[prediction_date]
-
-        # Predict sales for the specified date using Auto-ARIMA
-        prediction_autoarima = model_autoarima.predict(n_periods=1).loc[prediction_date]
-
-        # Display the forecasts for the specified date
-        st.subheader(f"ARIMA Sales Forecast for {product_name} - {forecasting_frequency} Forecasting on {prediction_date}")
-        st.write(f"Predicted Sales (ARIMA): {prediction_arima}")
-
-        st.subheader(f"Auto-ARIMA Sales Forecast for {product_name} - {forecasting_frequency} Forecasting on {prediction_date}")
-        st.write(f"Predicted Sales (Auto-ARIMA): {prediction_autoarima}")
+        # Display the predicted value
+        st.subheader(f"ARIMA Predicted Sales for {product_name} on {prediction_date}:")
+        st.write(prediction_value)
 
 if __name__ == "__main__":
     main()
