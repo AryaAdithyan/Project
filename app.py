@@ -44,13 +44,13 @@ def main():
         model_arima = ARIMA(df[product_name], order=(5, 1, 2))  # Adjust order as needed
         model_arima_fit = model_arima.fit()
 
-        # Generate forecast for the specific prediction date
-        forecast = model_arima_fit.get_forecast(steps=1)
-        prediction_value = forecast.predicted_mean.loc[prediction_date]
+      # Generate forecast for the specific prediction date
+       forecast = model_arima_fit.get_forecast(steps=1)
+       prediction_value = forecast.predicted_mean.loc[pd.Timestamp(prediction_date)]
 
-        # Display the predicted value
-        st.subheader(f"ARIMA Predicted Sales for {product_name} on {prediction_date}:")
-        st.write(prediction_value)
+     # Display the predicted value
+      st.subheader(f"ARIMA Predicted Sales for {product_name} on {prediction_date}:")
+      st.write(prediction_value)
 
 if __name__ == "__main__":
     main()
