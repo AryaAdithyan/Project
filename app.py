@@ -20,7 +20,7 @@ def main():
     forecasting_frequency = st.sidebar.radio("Select Forecasting Frequency", ["Hourly", "Daily", "Weekly", "Monthly"])
     product_name = st.sidebar.selectbox("Select Product", ["M01AB", "M01AE", "N02BA", "N02BE", "N05B", "N05C", "R03", "R06"])
 
-    # Allow the user to enter the date or date interval for prediction
+    # Allow the user to enter the date for prediction
     prediction_date = st.sidebar.date_input("Enter Date for Prediction", datetime.today() + timedelta(days=1))
 
     if st.sidebar.button("Generate Forecast"):
@@ -49,55 +49,18 @@ def main():
         model_autoarima = auto_arima(df[product_name], seasonal=True, m=12)  # Adjust seasonality as needed
         model_autoarima.fit(df[product_name])
 
-        # Generate future date range based on user input
-        if forecasting_frequency == "Hourly":
-            freq = "H"
-        elif forecasting_frequency == "Daily":
-            freq = "D"
-        elif forecasting_frequency == "Weekly":
-            freq = "W"
-        elif forecasting_frequency == "Monthly":
-            freq = "M"
-        future_dates = pd.date_range(df.index[-1] + timedelta(hours=1), periods=30, freq=freq)  # Assuming 30 days for illustration
+        # Predict sales for the specified date using ARIMA
+        prediction_arima = model_arima_fit.get_forecast(steps=1).predicted_mean.loc[prediction_date]
 
-        # Predict sales for the future date range using ARIMA
-        predictions_arima = model_arima_fit.predict(start=len(df), end=len(df) + 29, typ='levels')  # Assuming 30 days for illustration
+        # Predict sales for the specified date using Auto-ARIMA
+        prediction_autoarima = model_autoarima.predict(n_periods=1).loc[prediction_date]
 
-        # Predict sales for the future date range using Auto-ARIMA
-        predictions_autoarima = model_autoarima.predict(n_periods=30, return_conf_int=False)  # Assuming 30 days for illustration
+        # Display the forecasts for the specified date
+        st.subheader(f"ARIMA Sales Forecast for {product_name} - {forecasting_frequency} Forecasting on {prediction_date}")
+        st.write(f"Predicted Sales (ARIMA): {prediction_arima}")
 
-        # Create DataFrames for visualization
-        forecast_df_arima = pd.DataFrame({"Date": future_dates, "Predicted Sales (ARIMA)": predictions_arima})
-        forecast_df_autoarima = pd.DataFrame({"Date": future_dates, "Predicted Sales (Auto-ARIMA)": predictions_autoarima})
-
-        # Set index for both DataFrames
-        forecast_df_arima.set_index("Date", inplace=True)
-        forecast_df_autoarima.set_index("Date", inplace=True)
-
-        # Display the forecasts
-        st.subheader(f"ARIMA Sales Forecast for {product_name} - {forecasting_frequency} Forecasting")
-        st.line_chart(forecast_df_arima)
-
-        st.subheader(f"Auto-ARIMA Sales Forecast for {product_name} - {forecasting_frequency} Forecasting")
-        st.line_chart(forecast_df_autoarima)
-
-        # Display the predicted values
-        st.subheader("ARIMA Predicted Values:")
-        st.write(forecast_df_arima)
-
-        st.subheader("Auto-ARIMA Predicted Values:")
-        st.write(forecast_df_autoarima)
-
-        # Filter the forecasted values for the specified prediction date
-        prediction_date_values_arima = forecast_df_arima.loc[prediction_date]
-        prediction_date_values_autoarima = forecast_df_autoarima.loc[prediction_date]
-
-        # Display the forecasted values for the specified prediction date
-        st.subheader(f"ARIMA Predicted Values for {prediction_date}:")
-        st.write(prediction_date_values_arima)
-
-        st.subheader(f"Auto-ARIMA Predicted Values for {prediction_date}:")
-        st.write(prediction_date_values_autoarima)
+        st.subheader(f"Auto-ARIMA Sales Forecast for {product_name} - {forecasting_frequency} Forecasting on {prediction_date}")
+        st.write(f"Predicted Sales (Auto-ARIMA): {prediction_autoarima}")
 
 if __name__ == "__main__":
     main()
