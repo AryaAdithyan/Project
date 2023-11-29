@@ -19,8 +19,6 @@ def main():
     # Sidebar for user inputs
     forecasting_frequency = st.sidebar.radio("Select Forecasting Frequency", ["Hourly", "Daily", "Weekly", "Monthly"])
     product_name = st.sidebar.selectbox("Select Product", ["M01AB", "M01AE", "N02BA", "N02BE", "N05B", "N05C", "R03", "R06"])
-
-    # Allow the user to enter the date for prediction
     prediction_date = st.sidebar.date_input("Enter Date for Prediction", datetime.today() + timedelta(days=1))
 
     if st.sidebar.button("Generate Forecast"):
