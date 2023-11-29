@@ -16,7 +16,7 @@ def load_and_preprocess_data(file_path):
 def main():
     # Add a title with some style
     st.image("https://indoreinstitute.com/wp-content/uploads/2019/12/An-Insight-into-the-Different-Types-of-Pharmaceutical-Formulations.jpg", width=800)  # Adjust width as needed
-    st.title("💊Pharma Sales Forecasting App💊")
+    st.title("💊 Pharma Sales Forecasting 💊")
     st.subheader("Make data-driven decisions for your pharmaceutical products!")
 
     # Set background color and padding
