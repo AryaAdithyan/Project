@@ -35,7 +35,7 @@ def main():
     # Sidebar for user inputs
     forecasting_frequency = st.sidebar.radio("Select Forecasting Frequency", ["Hourly", "Daily", "Weekly", "Monthly"])
     product_name = st.sidebar.selectbox("Select Drug Category", ["M01AB", "M01AE", "N02BA", "N02BE", "N05B", "N05C", "R03", "R06"])
-    num_intervals = st.sidebar.slider("Select Number of Intervals for Forecasting", min_value=1, max_value=30, value=7)
+    num_intervals = st.sidebar.slider("Select Number of Intervals for Forecasting", min_value=1, max_value=50, value=7)
 
     start_date_str = st.sidebar.text_input("Start Date", (datetime.today() - timedelta(days=30)).strftime("%Y/%m/%d"))
     end_date_str = st.sidebar.text_input("End Date", datetime.today().strftime("%Y/%m/%d"))
