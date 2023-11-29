@@ -19,9 +19,8 @@ def main():
     # Sidebar for user inputs
     forecasting_frequency = st.sidebar.radio("Select Forecasting Frequency", ["Hourly", "Daily", "Weekly", "Monthly"])
     product_name = st.sidebar.selectbox("Select Product", ["M01AB", "M01AE", "N02BA", "N02BE", "N05B", "N05C", "R03", "R06"])
-    num_intervals = st.sidebar.number_input("Enter Number of Intervals for Forecasting", min_value=1, max_value=50, value=7)
 
-    # Allow the user to enter the date for prediction
+    # Allow the user to enter the date or date interval for prediction
     prediction_date = st.sidebar.date_input("Enter Date for Prediction", datetime.today() + timedelta(days=1))
 
     if st.sidebar.button("Generate Forecast"):
@@ -59,13 +58,13 @@ def main():
             freq = "W"
         elif forecasting_frequency == "Monthly":
             freq = "M"
-        future_dates = pd.date_range(df.index[-1] + timedelta(hours=1), periods=num_intervals, freq=freq)
+        future_dates = pd.date_range(df.index[-1] + timedelta(hours=1), periods=30, freq=freq)  # Assuming 30 days for illustration
 
         # Predict sales for the future date range using ARIMA
-        predictions_arima = model_arima_fit.predict(start=len(df), end=len(df) + num_intervals - 1, typ='levels')
+        predictions_arima = model_arima_fit.predict(start=len(df), end=len(df) + 29, typ='levels')  # Assuming 30 days for illustration
 
         # Predict sales for the future date range using Auto-ARIMA
-        predictions_autoarima = model_autoarima.predict(n_periods=num_intervals, return_conf_int=False)
+        predictions_autoarima = model_autoarima.predict(n_periods=30, return_conf_int=False)  # Assuming 30 days for illustration
 
         # Create DataFrames for visualization
         forecast_df_arima = pd.DataFrame({"Date": future_dates, "Predicted Sales (ARIMA)": predictions_arima})
