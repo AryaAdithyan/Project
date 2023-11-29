@@ -48,7 +48,7 @@ def main():
         forecast_arima = model_arima_fit.get_forecast(steps=1)
         
         # Ensure prediction_date is a Timestamp object
-        prediction_date = pd.Timestamp(prediction_date)
+        prediction_date = pd.to_datetime(prediction_date)
         
         prediction_value_arima = forecast_arima.predicted_mean.loc[prediction_date]
 
