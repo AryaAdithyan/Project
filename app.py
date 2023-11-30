@@ -14,22 +14,10 @@ def load_and_preprocess_data(file_path):
 
 # Streamlit app
 def main():
-    # Add a background image
-    st.markdown(
-        """
-        <style>
-        body {
-         "https://shooliniuniversity.com/blog/wp-content/uploads/2023/08/pharma-industry.jpg");
-            background-size: cover;
-        }
-        </style>
-        """,
-        unsafe_allow_html=True
-    )
-
+   
     # Pill emojis in the title
     st.title("💊Pharma Sales Forecasting App💊")
-
+    st.image("https://shooliniuniversity.com/blog/wp-content/uploads/2023/08/pharma-industry.jpg")
     # Sidebar for user inputs
     forecasting_frequency = st.sidebar.radio("Select Forecasting Frequency", ["Hourly", "Daily", "Weekly", "Monthly"])
     product_name = st.sidebar.selectbox("Select Product", ["M01AB", "M01AE", "N02BA", "N02BE", "N05B", "N05C", "R03", "R06"])
