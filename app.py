@@ -14,76 +14,91 @@ def load_and_preprocess_data(file_path):
 
 # Streamlit app
 def main():
-    # Add a title with some style
-    st.image("https://indoreinstitute.com/wp-content/uploads/2019/12/An-Insight-into-the-Different-Types-of-Pharmaceutical-Formulations.jpg", width=800)  # Adjust width as needed
-    st.title("💊 Pharma Sales Forecasting 💊")
-    st.subheader("Make data-driven decisions for your pharmaceutical products!")
-
-    # Set background color and padding
+    # Add a background image
     st.markdown(
         """
         <style>
         body {
-            background-color: #f4f4f4;
-            padding: 2rem;
+         "https://shooliniuniversity.com/blog/wp-content/uploads/2023/08/pharma-industry.jpg");
+            background-size: cover;
         }
         </style>
         """,
         unsafe_allow_html=True
     )
 
+    # Pill emojis in the title
+    st.title("💊Pharma Sales Forecasting App💊")
+
     # Sidebar for user inputs
     forecasting_frequency = st.sidebar.radio("Select Forecasting Frequency", ["Hourly", "Daily", "Weekly", "Monthly"])
-    product_name = st.sidebar.selectbox("Select Drug Category", ["M01AB", "M01AE", "N02BA", "N02BE", "N05B", "N05C", "R03", "R06"])
-    num_intervals = st.sidebar.slider("Select Number of Intervals for Forecasting", min_value=1, max_value=50, value=7)
+    product_name = st.sidebar.selectbox("Select Product", ["M01AB", "M01AE", "N02BA", "N02BE", "N05B", "N05C", "R03", "R06"])
+    num_intervals = st.sidebar.number_input("Enter Number of Intervals for Forecasting", min_value=1, max_value=50, value=7)
 
-    start_date_str = st.sidebar.text_input("Start Date", (datetime.today() - timedelta(days=30)).strftime("%Y/%m/%d"))
-    end_date_str = st.sidebar.text_input("End Date", datetime.today().strftime("%Y/%m/%d"))
-
-    # Convert the strings to datetime objects
-    start_date = pd.to_datetime(start_date_str, format="%Y/%m/%d")
-    end_date = pd.to_datetime(end_date_str, format="%Y/%m/%d")
-
-    if start_date >= end_date:
-        st.error("End date must be after start date.")
-        return
-
-    # Style the button
-    generate_button = st.sidebar.button("Generate Forecast", key="generate_button")
-
-    # Load the specific dataset based on the user's selection
-    file_path = "salesdaily.csv"  # Assuming daily frequency for this example
-    df = load_and_preprocess_data(file_path)
-
-    # Filter data based on selected date range
-    df_filtered = df[(df.index >= start_date) & (df.index <= end_date)]
-
-    # Check if the button is clicked
-    if generate_button:
-        # Check if the filtered DataFrame is empty
-        if df_filtered.empty:
-            st.error("No data available for the selected date range.")
+    if st.sidebar.button("Generate Forecast"):
+        # Determine the dataset based on the selected frequency
+        if forecasting_frequency == "Hourly":
+            dataset_name = "saleshourly.csv"
+        elif forecasting_frequency == "Daily":
+            dataset_name = "salesdaily.csv"
+        elif forecasting_frequency == "Weekly":
+            dataset_name = "salesweekly.csv"
+        elif forecasting_frequency == "Monthly":
+            dataset_name = "salesmonthly.csv"
         else:
-            # Train Auto-ARIMA model for short-term forecasting
-            model_autoarima = auto_arima(df_filtered[product_name], seasonal=True, m=12, D=1)  # Adjust seasonality as needed
-            model_autoarima.fit(df_filtered[product_name])
+            st.error("Invalid forecasting frequency selected")
+            return
 
-            # Generate future date range based on user input
-            freq_mapping = {"Hourly": "H", "Daily": "D", "Weekly": "W", "Monthly": "M"}
-            freq = freq_mapping.get(forecasting_frequency, "D")  # Default to Daily if not found
-            future_dates = pd.date_range(df_filtered.index[-1] + timedelta(hours=1), periods=num_intervals, freq=freq)
+        # Load the specific dataset based on the user's selection
+        file_path = dataset_name
+        df = load_and_preprocess_data(file_path)
 
-            # Predict sales for the future date range using Auto-ARIMA
-            predictions = model_autoarima.predict(n_periods=num_intervals, return_conf_int=False)
+        # Train ARIMA model for short-term forecasting
+        model_arima = ARIMA(df[product_name], order=(5, 1, 2))  # Adjust order as needed
+        model_arima_fit = model_arima.fit()
 
-            # Create a DataFrame for visualization
-            forecast_df = pd.DataFrame({"Date": future_dates, "Predicted Sales": predictions})
-            forecast_df.set_index("Date", inplace=True)
+        # Train Auto-ARIMA model for short-term forecasting
+        model_autoarima = auto_arima(df[product_name], seasonal=True, m=12)  # Adjust seasonality as needed
+        model_autoarima.fit(df[product_name])
 
-            # Display the forecast
-            st.subheader(f"Sales Forecast for {product_name} - {forecasting_frequency} Forecasting")
-            st.line_chart(forecast_df)
-            st.success("Forecast generated successfully!")
+        # Generate future date range based on user input
+        if forecasting_frequency == "Hourly":
+            freq = "H"
+        elif forecasting_frequency == "Daily":
+            freq = "D"
+        elif forecasting_frequency == "Weekly":
+            freq = "W"
+        elif forecasting_frequency == "Monthly":
+            freq = "M"
+        future_dates = pd.date_range(df.index[-1] + timedelta(hours=1), periods=num_intervals, freq=freq)
+
+        # Predict sales for the future date range using ARIMA
+        predictions_arima = model_arima_fit.predict(start=len(df), end=len(df) + num_intervals - 1, typ='levels')
+
+        # Predict sales for the future date range using Auto-ARIMA
+        predictions_autoarima = model_autoarima.predict(n_periods=num_intervals, return_conf_int=False)
+
+        # Create DataFrames for visualization
+        forecast_df_arima = pd.DataFrame({"Date": future_dates, "Predicted Sales (ARIMA)": predictions_arima})
+        forecast_df_autoarima = pd.DataFrame({"Date": future_dates, "Predicted Sales (Auto-ARIMA)": predictions_autoarima})
+
+        # Set index for both DataFrames
+        forecast_df_arima.set_index("Date", inplace=True)
+        forecast_df_autoarima.set_index("Date", inplace=True)
+
+        # Display the forecasts
+        st.subheader(f"ARIMA Sales Forecast for {product_name} - {forecasting_frequency} Forecasting")
+        st.line_chart(forecast_df_arima)
+
+        st.subheader(f"Auto-ARIMA Sales Forecast for {product_name} - {forecasting_frequency} Forecasting")
+        st.line_chart(forecast_df_autoarima)
+
+        # Display the predicted values
+        st.subheader("ARIMA Predicted Values:")
+        st.write(forecast_df_arima)
+
+        st.subheader("Auto-ARIMA Predicted Values:")
+        st.write(forecast_df_autoarima)
 
 if __name__ == "__main__":
     main()
